@@ -88,5 +88,8 @@ void ReporterExample::crash()
 
 void ReporterExample::uploadDumps()
 {
+    QUrl url;
+    url.setUrl("http://127.0.0.1:8000/crash_upload/");
+    QBreakpadInstance.setUploadUrl(url);
     QBreakpadInstance.sendDumps();
 }
