@@ -59,5 +59,35 @@ private:
     QPointer<QNetworkReply> m_reply;
     QFile* m_file;
 };
+ 
+class IBEBreakpadFtploader : public QObject
+{
+	Q_OBJECT
+public:
+	IBEBreakpadFtploader(QObject* parent = 0);
+	IBEBreakpadFtploader(const QUrl& url, QObject* parent = 0);
+	virtual ~IBEBreakpadFtploader();
 
+	//TODO: proxy, ssl
+	QString remoteUrl() const;
+	void setUrl(const QUrl& url);
+
+signals:
+	void finished(QString answer);
+
+public slots:
+	void uploadDump(const QString& abs_file_path);
+	void authenticationRequired(QNetworkReply*, QAuthenticator*);
+
+private slots:
+	void onUploadProgress(qint64 sent, qint64 total);
+	void onError(QNetworkReply::NetworkError err);
+	void onUploadFinished();
+
+private:
+	QNetworkAccessManager m_manager;
+	QNetworkRequest m_request;
+	QPointer<QNetworkReply> m_reply;
+	QFile* m_file;
+};
 #endif	// QBREAKPAD_HTTP_SENDER_H

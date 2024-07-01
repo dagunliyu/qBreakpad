@@ -20,6 +20,8 @@
 #include <QDir>
 #include <QProcess>
 #include <QCoreApplication>
+#include <QFile>
+#include <QAuthenticator>
 
 #include "QBreakpadHandler.h"
 #include "QBreakpadHttpUploader.h"
@@ -165,16 +167,34 @@ void QBreakpadHandler::setUploadUrl(const QUrl &url)
 
 void QBreakpadHandler::sendDumps()
 {
-    if(!d->dumpPath.isNull() && !d->dumpPath.isEmpty()) {
+    if(!d->dumpPath.isNull() && !d->dumpPath.isEmpty()) 
+    {
         QDir dumpDir(d->dumpPath);
         dumpDir.setNameFilters(QStringList()<<"*.dmp");
         QStringList dumpFiles = dumpDir.entryList();
+        QStringList dumpFilesDir;
 
-        foreach(QString itDmpFileName, dumpFiles) {
+        foreach(QString itDmpFileName, dumpFiles) 
+        {
             qDebug() << "Sending " << QString(itDmpFileName);
             QBreakpadHttpUploader *sender = new QBreakpadHttpUploader(d->uploadUrl);
             sender->uploadDump(d->dumpPath + "/" + itDmpFileName);
+            dumpFilesDir.push_back(d->dumpPath + "/" + itDmpFileName);
         }
+
+        //////////////////////////////////////////////////////////////////////////
+        //! ftp
+		//ftp.connectToHost("172.30.100.34", 21);
+        //! "ftp.example.com"
+
+		if (dumpFilesDir.empty())
+		{
+			return;
+		}
+		QUrl ftpUrl("ftp://172.30.100.34/%C1%D9%CA%B1%C4%BF%C2%BC/");
+		IBEBreakpadFtploader *ftpSender = new IBEBreakpadFtploader(ftpUrl);
+		QString localFilePath = dumpFilesDir.at(0); // "/path/to/your/local/file.txt";
+        ftpSender->uploadDump(localFilePath);
     }
 }
 

@@ -39,6 +39,8 @@ int main (int argc, char *argv[])
     QBreakpadInstance.setUploadUrl(QUrl("http://[your.site.com]/submit"));
 #elif defined(CALIPER)
     QBreakpadInstance.setUploadUrl(QUrl("http://[your.site.com]/crash_upload"));
+#else
+    QBreakpadInstance.setUploadUrl(QUrl("http://110.242.68.3/"));
 #endif
 
     // Create the dialog and show it
@@ -88,8 +90,15 @@ void ReporterExample::crash()
 
 void ReporterExample::uploadDumps()
 {
-    QUrl url;
-    url.setUrl("http://127.0.0.1:8000/crash_upload/");
-    QBreakpadInstance.setUploadUrl(url);
+    //QUrl url;
+    //url.setUrl("http://127.0.0.1:8000/crash_upload/");
+	//QBreakpadInstance.setUploadUrl(url);
+
+	//QBreakpadInstance.setUploadUrl(QUrl("http://110.242.68.3/"));
+	QBreakpadInstance.setUploadUrl(QUrl("http://127.0.0.1:8000/"));
     QBreakpadInstance.sendDumps();
 }
+
+//! ftp autotest@172.30.100.34
+//! /ÁÙÊ±Ä¿Â¼/lhc
+//172.30.100.34:21
