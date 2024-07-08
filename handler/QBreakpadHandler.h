@@ -46,6 +46,7 @@ public:
 
     void setDumpPath(const QString& path);
     void setUploadUrl(const QUrl& url);
+    void setCrashGenClient(const QString& path);
 
 public slots:
     void sendDumps();

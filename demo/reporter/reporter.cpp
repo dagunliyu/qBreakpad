@@ -33,7 +33,9 @@ int main (int argc, char *argv[])
     QCoreApplication::setOrganizationDomain("name.org");
 
     // Set directory to store dumps and url to upload
-    QBreakpadInstance.setDumpPath("crashes");
+    //QBreakpadInstance.setDumpPath("crashes");
+	QBreakpadInstance.setCrashGenClient("C:\\dumps\\");
+
     // Set server type for uploading
 #if defined(SOCORRO)
     QBreakpadInstance.setUploadUrl(QUrl("http://[your.site.com]/submit"));
@@ -76,16 +78,26 @@ ReporterExample::~ReporterExample()
     delete ui;
 }
 
+void DerefZeroCrash() {
+	int* x = 0;
+	*x = 1;
+}
+
 void ReporterExample::crash()
 {
-    qsrand(QDateTime::currentDateTime().toTime_t());
-    TestThread t1(false, qrand());
-    TestThread t2(true, qrand());
+#if 1
+	qsrand(QDateTime::currentDateTime().toTime_t());
+	TestThread t1(false, qrand());
+	TestThread t2(true, qrand());
 
-    t1.start();
-    t2.start();
+	t1.start();
+	t2.start();
 
-    QTimer::singleShot(3000, qApp, SLOT(quit()));
+	QTimer::singleShot(3000, qApp, SLOT(quit()));
+#else
+	DerefZeroCrash();
+#endif
+
 }
 
 void ReporterExample::uploadDumps()

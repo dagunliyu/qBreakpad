@@ -198,3 +198,75 @@ void QBreakpadHandler::sendDumps()
     }
 }
 
+#pragma region crashGenClientTest
+
+// Maximum length of a line in the edit box.
+const size_t kMaximumLineLength = 256;
+
+const int kMaxLoadString = 100;
+const wchar_t kPipeName[] = L"\\\\.\\pipe\\BreakpadCrashServices\\TestServer";
+
+static google_breakpad::ExceptionHandler* handler = NULL;
+
+static size_t kCustomInfoCount = 2;
+static google_breakpad::CustomInfoEntry kCustomInfoEntries[] =
+{
+	google_breakpad::CustomInfoEntry(L"prod", L"CrashTestApp"),
+	google_breakpad::CustomInfoEntry(L"ver", L"1.0"),
+};
+
+bool ShowDumpResults(const wchar_t* dump_path,
+	const wchar_t* minidump_id,
+	void* context,
+	EXCEPTION_POINTERS* exinfo,
+	MDRawAssertionInfo* assertion,
+	bool succeeded)
+{
+	wchar_t* text = new wchar_t[kMaximumLineLength];
+	text[0] = L'\0';
+	int result = swprintf_s(text,
+		kMaximumLineLength,
+		L"Dump generation request %s\r\n",
+		succeeded ? L"succeeded" : L"failed");
+
+	wprintf(L"%s", text);
+	delete[] text;
+
+	if (result == -1)
+	{
+		delete[] text;
+	}
+
+	//QueueUserWorkItem(AppendTextWorker, text, WT_EXECUTEDEFAULT);
+	return succeeded;
+}
+
+void QBreakpadHandler::setCrashGenClient(const QString& path)
+{
+	QString absPath = path;
+	if (!QDir::isAbsolutePath(absPath)) {
+		absPath = QDir::cleanPath(qApp->applicationDirPath() + "/" + path);
+	}
+	Q_ASSERT(QDir::isAbsolutePath(absPath));
+
+	QDir().mkpath(absPath);
+	if (!QDir().exists(absPath)) {
+		qDebug("Failed to set dump path which not exists: %s", qPrintable(absPath));
+		return;
+	}
+
+	d->dumpPath = absPath;
+
+	google_breakpad::CustomClientInfo custom_info =
+	{ kCustomInfoEntries, kCustomInfoCount };
+
+    d->pExptHandler = new google_breakpad::ExceptionHandler(absPath.toStdWString(), //L"C:\\dumps\\",
+		NULL,
+		ShowDumpResults,
+		NULL,
+		google_breakpad::ExceptionHandler::HANDLER_ALL,
+		MiniDumpNormal,
+		kPipeName,
+		&custom_info);
+}
+#pragma endregion
